@@ -1,0 +1,43 @@
+---
+- name: Install mosquitto
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - mosquitto
+      - mosquitto-clients
+
+- name: Create mosquitto directory
+  file:
+     path: "{{ app_base }}/mosquitto"
+     state: directory
+     owner: owntracks
+     group: www-data
+     mode: 0755
+
+- name: Template mosquitto config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ app_base }}/mosquitto/{{ item }}"
+    owner: owntracks
+    group: www-data
+    mode: 0440
+  loop:
+    - mosquitto.conf
+    - mosquitto.acl
+    - mosquitto.pw
+
+- name: Install mosquitto supervisord conf
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/mosquitto.conf
+    force: true
+    mode: 0644
+
+- name: Disable mosquitto service
+  service:
+    name: "mosquitto"
+    enabled: false
+    state: stopped
+  ignore_errors: true

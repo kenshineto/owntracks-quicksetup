@@ -1,0 +1,10 @@
+window.owntracks = window.owntracks || {};
+window.owntracks.config = {
+  api: {
+    baseUrl: "{{ "https" if owntracks_tls else "http" }}://{{ owntracks_domain }}/",
+    fetchOptions: {credentials: "include"},
+  },
+  router: {
+    basePath: "/frontend",
+  },
+};

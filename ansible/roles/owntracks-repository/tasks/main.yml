@@ -1,0 +1,18 @@
+---
+- name: Install owntracks repository key
+  get_url:
+     url: https://raw.githubusercontent.com/owntracks/recorder/master/etc/repo-v2.owntracks.org.gpg.key
+     dest: /usr/share/keyrings/owntracks.asc
+     mode: 0644
+
+- name: Install OwnTracks sources
+  template:
+    src: owntracks.sources.j2
+    dest: /etc/apt/sources.list.d/owntracks.sources
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Update APT cache
+  apt:
+    update_cache: yes

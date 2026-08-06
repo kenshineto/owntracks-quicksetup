@@ -1,0 +1,32 @@
+user owntracks
+
+persistence true
+persistence_location {{ app_base }}/mosquitto/
+
+connection_messages true
+
+log_dest stdout
+log_dest topic
+log_type error
+log_type warning
+log_type notice
+log_type information
+log_type all
+log_type debug
+log_timestamp true
+
+max_inflight_messages 20
+max_queued_messages 9000
+
+acl_file {{ app_base }}/mosquitto/mosquitto.acl
+password_file {{ app_base }}/mosquitto/mosquitto.pw
+
+{% if mqtt_tls %}
+listener 1883 127.0.0.1
+listener 8883
+cafile {{ mqtt_tls_cert }}
+certfile {{ mqtt_tls_cert }}
+keyfile {{ mqtt_tls_key }}
+{% else %}
+listener 1883
+{% endif %}

@@ -1,0 +1,17 @@
+[program:mosquitto]
+command=/usr/sbin/mosquitto -c {{ app_base }}/mosquitto/mosquitto.conf
+priority=400
+numprocs=1
+autostart=true
+autorestart=true
+
+stopasgroup=true
+killasgroup=true
+
+stdout_logfile={{ tmp_base }}/service_mosquitto.log
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=5
+redirect_stderr=true
+
+stdout_events_enabled = true
+stderr_events_enabled = true

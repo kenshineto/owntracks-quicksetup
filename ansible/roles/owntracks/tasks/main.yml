@@ -1,0 +1,46 @@
+---
+- name: Install owntracks required packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - net-tools
+      - nginx
+      - php-fpm
+      - python3-passlib
+      - jq
+      - jo
+      - lua5.4
+      - lua-socket
+      - lua-sec
+      - python3-paho-mqtt
+      - logrotate
+      - python3-cryptography
+      - cron
+
+- name: Create directories
+  file:
+     path: "{{ item }}"
+     state: directory
+     owner: owntracks
+     group: www-data
+     mode: 0755
+  loop:
+     - "{{ app_base }}"
+     - "{{ app_base }}/tls"
+     - "{{ app_base }}/userdata"
+     - "{{ tmp_base }}"
+
+- name: Add passwords to userdata
+  set_fact:
+     users: "{{ users | user_passwds(app_base + '/userdata') }}"
+
+- name: Generate user .otrc files in userdata
+  template:
+     src: otrc.j2
+     dest: "{{ app_base }}/userdata/{{ item.username }}-{{ item.devicename }}.otrc"
+     owner: owntracks
+     group: www-data
+     mode: 0440
+  loop: "{{ devices }}"

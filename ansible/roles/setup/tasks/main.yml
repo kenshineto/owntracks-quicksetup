@@ -1,0 +1,6 @@
+---
+- name: Start supervisord
+  service:
+    name: "supervisor"
+    state: restarted
+  ignore_errors: true

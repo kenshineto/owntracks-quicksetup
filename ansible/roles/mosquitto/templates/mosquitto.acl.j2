@@ -1,0 +1,16 @@
+# anon
+topic read test/#
+
+# recorder needs readwrite in order to publish TOURS list
+user recorder
+topic read owntracks/#
+topic write owntracks/+/+/cmd
+
+# device access
+{% for user in users %}
+user {{ user.username }}
+topic readwrite owntracks/{{ user.username }}/#
+topic read owntracks/+/+
+topic read owntracks/+/+/event
+topic read owntracks/+/+/info
+{% endfor %}

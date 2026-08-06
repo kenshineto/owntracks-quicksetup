@@ -1,0 +1,4 @@
+recorder:{{ (app_base ~ '/userdata/recorder.pw') | lookup_passwd | mosquitto_passwd }}
+{% for user in users %}
+{{ user.username }}:{{ user.password | string | mosquitto_passwd }}
+{% endfor %}

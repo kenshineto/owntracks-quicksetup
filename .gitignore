@@ -1,4 +1,1 @@
-configuration.yaml
-__pycache__
-sundry/
-sys.info
+ansible/filter_plugins/__pycache__

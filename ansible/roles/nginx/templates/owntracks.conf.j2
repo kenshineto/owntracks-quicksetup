@@ -1,0 +1,75 @@
+server {
+{% if owntracks_tls %}
+	listen 443 ssl;
+	listen [::]:443 ssl;
+{% else %}
+	listen 80;
+{% endif %}
+	server_name  {{ owntracks_domain }};
+
+{% if owntracks_tls %}
+	ssl_certificate {{ owntracks_tls_cert }};
+	ssl_certificate_key {{ owntracks_tls_key }};
+
+	ssl_session_cache shared:ssl_session_cache:10m;
+	ssl_session_timeout 5m;
+	ssl_protocols TLSv1.2 TLSv1.3;
+
+{% endif %}
+
+	root {{ www_base }};
+
+	location ~ \.php$ {
+		auth_basic "{{ owntracks_name }}";
+		auth_basic_user_file {{ app_base }}/userdata/htpasswd;
+
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php-fpm.sock;
+	}
+
+	location / {
+		auth_basic $owntracks_hascookie;
+		auth_basic_user_file {{ app_base }}/userdata/htpasswd;
+		add_header Set-Cookie "otrauth={{ cookie_value }};max-age=86400;path=/;secure;SameSite=None";
+		index index.php index.html index.htm;
+		try_files $uri $uri/ =404;
+	}
+
+	# Proxy and upgrade WebSocket connection
+	location /ws {
+		include snippets/proxy.conf;
+		proxy_read_timeout 120s;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+	}
+
+	location ~ /(view|static|utils)/ {
+		include snippets/proxy.conf;
+	}
+
+	location ~ /(api|last|map|table)/ {
+		auth_basic $owntracks_hascookie;
+		auth_basic_user_file {{ app_base }}/userdata/htpasswd;
+		add_header Set-Cookie "otrauth={{ cookie_value }};max-age=86400;path=/;secure;SameSite=None";
+		include snippets/proxy.conf;
+	}
+
+	# HTTP Mode
+	location /pub {
+		auth_basic "{{ owntracks_name }}";
+		include snippets/proxy.conf;
+		proxy_set_header X-Limit-U $remote_user;
+	}
+}
+{% if owntracks_tls %}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name  {{ owntracks_domain }};
+
+	location / {
+		return 301 https://$host$request_uri;
+	}
+}
+{% endif %}

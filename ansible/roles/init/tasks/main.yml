@@ -1,0 +1,37 @@
+---
+- name: Get dpkg architecture
+  command: dpkg --print-architecture
+  register: dpkg_arch
+  changed_when: false
+
+- name: Store architecture
+  set_fact:
+    deb_arch: "{{ dpkg_arch.stdout }}"
+
+- name: Running context
+  debug:
+    msg: >-
+      Running Ansible on {{ inventory_hostname }} with OS {{ ansible_facts["distribution"] }}
+      {{ ansible_facts["distribution_release"] }} {{ ansible_facts["distribution_version"] }} {{ deb_arch }}"
+
+- name: Update apt
+  apt:
+    update_cache: true
+
+- name: Install system packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - apt-transport-https
+      - curl
+      - wget
+      - tar
+      - build-essential
+      - pwgen
+      - whois
+      - gzip
+      - zip
+      - unzip
+      - zstd
+

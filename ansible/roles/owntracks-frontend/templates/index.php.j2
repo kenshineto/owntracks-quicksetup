@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>{{ owntracks_name }}</title>
+		<link rel="stylesheet" href="owntracks.css">
+<?php
+	$user = $_SERVER['REMOTE_USER'];
+	$userdata = "{{ app_base }}/userdata";
+?>
+	</head>
+	<body>
+		<header>
+			<div id="logo"><img src="logo-owntracks-grayscale-96x96.jpg" alt="{{ owntracks_name }}" /></div>
+			<h2>{{ owntracks_name }}</h2>
+			<nav>
+				<ul>
+					<li><a href="/frontend/">Frontend</a></li>
+					<li><a href="/table/">Device table</a></li>
+					<li><a href="/last/">Live map</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<div id="conf">
+			<span>You (<code><?=$user?></code>) have the following devices to configure:</span>
+			<p>
+				To configure your Android or iOS OwnTracks app, open this page on the device
+				and either click on the URLencode or download an <code>.otrc</code> file and send it
+				by email, say, to the device.
+			</p>
+		</div>
+
+		<table id="devices">
+			<tr>
+				<th>device</th>
+				<th>URLconfig</th>
+				<th>OTRC file</th>
+			</tr>
+			<tbody>
+<?php
+	$otrcs = array_map('basename', glob("${userdata}/${user}-*.otrc"));
+	foreach ($otrcs as $file) {
+		$path = "${userdata}/${file}";
+		$data = json_decode(file_get_contents($path), false);
+		$deviceId = $data->{"deviceId"};
+		$config = base64_encode(json_encode($data));
+
+		print("<tr>");
+		print("<td>$deviceId</td>");
+		print("<td><a href='owntracks://config?inline={$config}'>click</a></td>");
+		print("<td><a href='otrc.php?d=$deviceId'>$deviceId</a></td>");
+		print("</tr>");
+	}
+?>
+			</tbody>
+		</table>
+	</body>
+</html>

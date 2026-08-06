@@ -1,0 +1,93 @@
+---
+- name: Install nginx
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - nginx
+      - nginx-common
+
+- name: Create mosquitto directory
+  file:
+     path: "{{ app_base }}/nginx"
+     state: directory
+     mode: 0755
+
+- name: Create idempotent random cookie value
+  set_fact:
+     cookie_value: "{{ (app_base ~ '/nginx/cookie.pw') | lookup_passwd }}"
+
+- name: Create htpasswd file
+  copy:
+    dest: "{{ app_base }}/userdata/htpasswd"
+    content: |
+      {% for user in users %}
+      {{ user.username }}:{{ user.password | string | nginx_passwd }}
+      {% endfor %}
+    owner: owntracks
+    group: www-data
+    mode: 0440
+    force: yes
+
+- name: Create nginx directories
+  file:
+    path: "{{ app_base }}/nginx/{{item}}"
+    state: directory
+    owner: owntracks
+    group: www-data
+    mode: 0755
+  loop:
+    - ""
+    - "conf.d"
+    - "snippets"
+
+- name: Template nginx.conf
+  template:
+    src: nginx.conf.j2
+    dest: "{{ app_base }}/nginx/nginx.conf"
+    owner: owntracks
+    group: www-data
+    mode: 0644
+
+- name: Template owntracks.conf
+  template:
+    src: owntracks.conf.j2
+    dest: "{{ app_base }}/nginx/conf.d/owntracks.conf"
+    owner: owntracks
+    group: www-data
+    mode: 0644
+
+- name: Template proxy.conf
+  template:
+    src: proxy.conf.j2
+    dest: "{{ app_base }}/nginx/snippets/proxy.conf"
+    owner: owntracks
+    group: www-data
+    mode: 0644
+
+- name: Symlink files from etc
+  file:
+    src: "/etc/nginx/{{ item }}"
+    dest: "{{ app_base }}/nginx/{{ item }}"
+    state: link
+    owner: owntracks
+    group: www-data
+  loop:
+    - "fastcgi.conf"
+    - "mime.types"
+    - "snippets/fastcgi-php.conf"
+
+- name: Install nginx supervisord conf
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/nginx.conf
+    force: true
+    mode: 0644
+
+- name: Disable nginx service
+  service:
+    name: "nginx"
+    enabled: false
+    state: stopped
+  ignore_errors: true

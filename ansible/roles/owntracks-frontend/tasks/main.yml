@@ -1,0 +1,55 @@
+---
+- name: Remove old www assets
+  file:
+    path: "{{ www_base }}"
+    state: absent
+
+- name: Create frontend directories
+  file:
+    path: "{{ www_base }}{{ item }}"
+    state: directory
+    owner: owntracks
+    group: www-data
+    mode: 0755
+  loop:
+    - "/"
+    - "/frontend/"
+
+- name: Template PHP
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ www_base }}/{{ item }}"
+    owner: owntracks
+    group: www-data
+    mode: 0644
+  loop:
+    - index.php
+    - otrc.php
+
+- name: Copy static assets
+  copy:
+    src: "{{ item }}"
+    dest: "{{ www_base }}/{{ item }}"
+    owner: owntracks
+    group: www-data
+    mode: 0644
+  loop:
+    - favicon.ico
+    - logo-owntracks-grayscale-96x96.jpg
+    - owntracks.css
+
+- name: Unpack dist
+  unarchive:
+    src: frontend-dist.tar.gz
+    dest: "{{ www_base }}/frontend"
+    owner: owntracks
+    group: www-data
+    remote_src: no
+
+- name: Template frontend config
+  template:
+    src: config.js.j2
+    dest: "{{ www_base }}/frontend/config/config.js"
+    owner: owntracks
+    group: www-data
+    mode: 0444

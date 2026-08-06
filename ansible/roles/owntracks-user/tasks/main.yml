@@ -1,0 +1,22 @@
+---
+- name: Create Groups
+  group:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - owntracks
+    - www-data
+
+- name: Create AzuraCast User
+  user:
+    name: owntracks
+    home: "{{ app_base }}"
+    comment: "OwnTracks"
+    shell: /bin/sh
+    groups: 'sudo,owntracks,www-data'
+
+- name: Modify www-data User
+  user:
+    name: www-data
+    groups: "owntracks"
+    append: true

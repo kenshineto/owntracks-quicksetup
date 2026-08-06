@@ -1,0 +1,94 @@
+# Configuration for OwnTracks quicksetup
+
+# OwnTracks directories
+#
+app_base: "/var/lib/owntracks"
+www_base: "{{ app_base }}/www"
+tmp_base: "{{ app_base }}/www_tmp"
+
+# Specify the site name for your owntracks instance
+#
+owntracks_name: "OwnTracks"
+
+# Specify your DNS domain, the name by which this OwnTracks
+# backend will be reacheable.
+#
+owntracks_domain: "owntracks.freya.cat"
+
+# Specify if the nginx owntracks webserver listen on https.
+# If set to True then nginx will auto redirect http to https.
+#
+# You may want to set this to false if you have anothe reverse
+# proxy running infront of owntracks.
+#
+owntracks_tls: False
+
+# Specify the path to the TLS public cert if TLS is enabled for
+# owntracks
+#
+owntracks_tls_cert: "{{ app_base }}/tls/owntracks.crt"
+
+# Specify the path to the TLS private key if TLS is enabled for
+# owntracks
+#
+owntracks_tls_key: "{{ app_base }}/tls/owntracks.key"
+
+# Specify DNS domain that you will connect to mqtt with
+#
+# If you are not using TLS for mqtt then this doesnt matter and
+# can be the same as the dns_domain or even just an ip.
+#
+# If you are using TLS this must match the DNS domain in the
+# TLS cert provided to mqtt.
+#
+mqtt_domain: "mqtt.freya.cat"
+
+# Specify if mqtt should listen on tls. Mqtt will always listen on
+# port 1883 (non tls), and will only listen on port 8883 (tls) if
+# tls is enabled.
+#
+mqtt_tls: True
+
+# Specify the path to the TLS public cert if TLS is enabled for
+# mqtt
+#
+# This may be the same file as `owntracks_tls_cert` if the dns
+# domains match.
+#
+mqtt_tls_cert: "{{ app_base }}/tls/mqtt.crt"
+
+# Specify the path to the TLS private key if TLS is enabled for
+# mqtt
+#
+# This may be the same file as `owntracks_tls_key` if the dns
+# domains match.
+#
+mqtt_tls_key: "{{ app_base }}/tls/mqtt.key"
+
+# Configure a list of users that can connect to owntracks
+#
+# Each user has:
+# - username: their login username
+# - password: their login password (optional)
+#
+# If a password is not set, one will be auto generated
+#
+users:
+  - { username: "freya" }
+  - { username: "trimill" }
+
+# Configure a list of devices that will be using owntracks.
+#
+# Each device has:
+# - tid: the identifier that shows in the interactive map
+# - username: the user associated with this device
+# - devicename: a friendly name for their device
+#
+devices:
+  - { tid: "FM", username: "freya", devicename: "aoba" }
+  - { tid: "TM", username: "trimill", devicename: "triphone" }
+
+# Path to an optional Lua script the Recorder should load at
+# startup.
+#
+#lua_script: "/path/to/example.lua"

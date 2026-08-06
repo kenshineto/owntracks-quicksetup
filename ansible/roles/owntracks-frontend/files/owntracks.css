@@ -1,0 +1,55 @@
+body, html {
+	font-family: sans-serif;
+	color: #818181;
+	font-size: 120%;
+	margin: 20px;
+}
+
+p, ul {
+	margin: 15px;
+	line-height: 140%;
+	width: 90%;
+}
+
+a {
+	text-decoration: underline;
+	color: inherit;
+}
+
+header div#logo {
+	position: absolute;
+	left: 0;
+	top: 20px;
+	background-color: white;
+	width: 90%;
+}
+
+header div#logo img {
+	width: 96;
+	height: 96;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+header h2 {
+	font-size: 120%;
+}
+
+div#conf {
+	font-size: 80%;
+}
+
+table#devices {
+	border: 1px solid black;
+	table-layout: fixed;
+	width: 80%;
+}
+
+table#devices th,
+table#devices td {
+	border: 1px solid black;
+	overflow: hidden;
+	text-align: center;
+}
+

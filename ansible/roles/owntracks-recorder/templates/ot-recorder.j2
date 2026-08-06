@@ -1,0 +1,62 @@
+#!/bin/sh
+
+if [ "$(whoami)" != 'owntracks' ]; then
+	echo 'This script must be run as the "owntracks" user. Rerunning...'
+	exec sudo -u owntracks "$0" "$@"
+fi
+
+# -----------------------------------------------------
+# Storage directory
+export OTR_STORAGEDIR="{{ app_base }}/recorder/store"
+
+# -----------------------------------------------------
+# Address or hostname of the MQTT broker
+export OTR_HOST="127.0.0.1"
+
+# -----------------------------------------------------
+# Port number of the MQTT broker.
+export OTR_PORT=1883
+
+# -----------------------------------------------------
+# Username for the MQTT connection
+export OTR_USER="recorder"
+
+# -----------------------------------------------------
+# Password for the MQTT connection
+export OTR_PASS="{{ (app_base ~ '/userdata/recorder.pw') | lookup_passwd }}"
+
+# -----------------------------------------------------
+# QoS for MQTT connection
+export OTR_QOS=2
+
+# -----------------------------------------------------
+# MQTT clientid
+export OTR_CLIENTID="otrec"
+
+# -----------------------------------------------------
+# Address for the HTTP module to bind to
+export OTR_HTTPHOST="127.0.0.1"
+
+# -----------------------------------------------------
+# Port number for the HTTP module to bind to
+export OTR_HTTPPORT=8083
+
+# -----------------------------------------------------
+# List of topics for MQTT to subscribe to, blank separated in a string
+export OTR_TOPICS="owntracks/#"
+
+# -----------------------------------------------------
+# Optional LUA script which will be loaded with the Recorder
+{% if lua_script is defined and lua_script %}
+export OTR_LUASCRIPT="{{ lua_script }}"
+{% endif %}
+
+# -----------------------------------------------------
+# HTTP prefix for this recorder for accessing Tour views
+export OTR_HTTPPREFIX="{{ "https" if owntracks_tls else "http" }}://{{ owntracks_domain }}"
+
+# -----------------------------------------------------
+# Set database size of recorder
+export OTR_LMDBSIZE={{ 5 * 1024 * 1024 * 1024 }}
+
+exec /usr/sbin/ot-recorder "$@"

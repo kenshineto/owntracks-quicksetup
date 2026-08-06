@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: true
+
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+  roles:
+    - init
+    - supervisord
+    - owntracks-user
+    - owntracks
+    - owntracks-repository
+    - owntracks-frontend
+    - owntracks-recorder
+    - mosquitto
+    - nginx
+    - setup

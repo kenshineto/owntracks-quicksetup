@@ -1,0 +1,45 @@
+---
+- name: Install ot-recorder
+  apt:
+    name: "ot-recorder"
+    state: latest
+
+- name: Create recorder directory
+  file:
+    path: "{{ app_base }}/recorder"
+    state: directory
+    mode: 0755
+    owner: owntracks
+    group: www-data
+
+- name: Template ot-recorder
+  template:
+    src: ot-recorder.j2
+    dest: "{{ app_base }}/recorder/ot-recorder"
+    owner: owntracks
+    group: www-data
+    mode: 0755
+
+- name: Check if recorder needs initialization
+  stat:
+    path: "{{ app_base }}/recorder/store/ghash/dada.mdb"
+  register: mdb
+
+- name: Initalize backend (nondestructive)
+  shell: >-
+    {{ app_base }}/recorder/ot-recorder --initialize
+  when: not mdb.stat.exists
+
+- name: Install recorder supervisord conf
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/recorder.conf
+    force: true
+    mode: 0644
+
+- name: Disable recorder service
+  service:
+    name: "ot-recorder"
+    enabled: false
+    state: stopped
+  ignore_errors: true
